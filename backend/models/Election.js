@@ -3,10 +3,18 @@ import mongoose from "mongoose";
 
 const CandidateSchema = new mongoose.Schema({
 	name: { type: String, required: true },
+<<<<<<< HEAD
 	department: { type: String, required: true }, // Added department field
+=======
+	position: { type: String, required: true },
+	department: { type: String, required: true },
+	year: { type: String, required: true },
+	studentId: { type: String, required: true },
+>>>>>>> 73367c1cb39a00f618d3c29bea1c786d531231a1
 	votes: { type: Number, default: 0 },
 	profileImage: { type: String, required: true },
 	platform: { type: [String], required: true },
+	bio: { type: String },
 });
 
 const ElectionSchema = new mongoose.Schema({
@@ -14,14 +22,20 @@ const ElectionSchema = new mongoose.Schema({
 	description: { type: String, required: true },
 	status: {
 		type: String,
-		required: true,
 		enum: ["Ongoing", "Completed", "Pending"],
+<<<<<<< HEAD
+=======
+		default: "Pending",
+>>>>>>> 73367c1cb39a00f618d3c29bea1c786d531231a1
 	},
 	startDate: { type: Date, required: true },
 	endDate: { type: Date, required: true },
 	totalVotes: { type: Number, default: 0 },
 	eligibleVoters: { type: Number, required: true },
 	candidates: [CandidateSchema],
+	voters: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+	createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+	createdAt: { type: Date, default: Date.now },
 });
 
 const Election = mongoose.model("Election", ElectionSchema);
