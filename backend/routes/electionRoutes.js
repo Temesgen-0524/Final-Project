@@ -1,5 +1,4 @@
 /** @format */
-
 import express from "express";
 import Election from "../models/Election.js";
 
@@ -65,6 +64,24 @@ router.post("/:electionId/vote", async (req, res) => {
 
 		await election.save();
 		res.status(200).json({ message: "Vote cast successfully", election });
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
+
+// Announce results (admin only)
+router.post("/:electionId/announce", async (req, res) => {
+	const { electionId } = req.params;
+
+	try {
+		const election = await Election.findById(electionId);
+		if (!election) {
+			return res.status(404).json({ message: "Election not found" });
+		}
+
+		election.status = "Completed"; // Update status to completed
+		await election.save();
+		res.status(200).json({ message: "Election results announced", election });
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
