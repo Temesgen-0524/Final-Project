@@ -481,6 +481,23 @@ export function LoginForm() {
                   <span>• studentdin@dbu.edu.et (password: admin123)</span>
                   <span>• academic@dbu.edu.et (password: admin123)</span>
                   <span>• clubs@dbu.edu.et (password: admin123)</span>
+                  <span>• dining@dbu.edu.et (password: admin123)</span>
+                  <span>• sports@dbu.edu.et (password: admin123)</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Student Demo Credentials */}
+          {accessType === "student" && loginMethod === "university" && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="text-sm">
+                <p className="font-medium text-green-800 mb-2">
+                  Demo Student Credentials:
+                </p>
+                <div className="grid grid-cols-1 gap-1 text-green-700">
+                  <span>• student@dbu.edu.et (password: student123)</span>
+                  <span>• Any email with any password works for demo</span>
                 </div>
               </div>
             </div>
