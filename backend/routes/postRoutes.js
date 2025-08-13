@@ -7,8 +7,13 @@ import { authenticateToken, requireAdmin } from "../middleware/auth.js";
 const router = express.Router();
 
 // Create a new post (Admin only)
-router.post("/", authenticateToken, requireAdmin, async (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
 	try {
+		// Allow both admin users and users with admin role
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const {
 			type,
 			title,
@@ -64,8 +69,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // Update post (Admin only)
-router.put("/:id", authenticateToken, requireAdmin, async (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const updatedPost = await Post.findByIdAndUpdate(
 			req.params.id,
 			req.body,
@@ -83,8 +92,12 @@ router.put("/:id", authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // Delete post (Admin only)
-router.delete("/:id", authenticateToken, requireAdmin, async (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const deletedPost = await Post.findByIdAndDelete(req.params.id);
 		
 		if (!deletedPost) {

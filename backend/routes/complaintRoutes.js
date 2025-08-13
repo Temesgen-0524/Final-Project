@@ -68,8 +68,12 @@ router.get("/:id", authenticateToken, async (req, res) => {
 });
 
 // Add response to complaint (Admin only)
-router.post("/:id/responses", authenticateToken, requireAdmin, async (req, res) => {
+router.post("/:id/responses", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const { message } = req.body;
 		const complaint = await Complaint.findById(req.params.id);
 		
@@ -90,8 +94,12 @@ router.post("/:id/responses", authenticateToken, requireAdmin, async (req, res) 
 });
 
 // Update complaint status (Admin only)
-router.patch("/:id/status", authenticateToken, requireAdmin, async (req, res) => {
+router.patch("/:id/status", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const { status } = req.body;
 		const complaint = await Complaint.findById(req.params.id);
 		

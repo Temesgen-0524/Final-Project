@@ -101,6 +101,7 @@ export function Complaints() {
 			await fetchComplaints(); // Refresh the complaints list
 			toast.success(`Complaint submitted. Case ID: ${caseId}`);
 		} catch (error) {
+			console.error('Failed to submit complaint:', error);
 			toast.error("Failed to submit complaint");
 			return;
 		}
@@ -151,7 +152,7 @@ export function Complaints() {
 
 		if (
 			!user?.isAdmin ||
-			(user.role !== "president" && user.role !== "student_din")
+			(user?.role !== "president" && user?.role !== "student_din")
 		) {
 			toast.error("Only branch admins can upload documents");
 			return;
@@ -164,7 +165,7 @@ export function Complaints() {
 	};
 
 	const resolveComplaint = (complaintId) => {
-		if (!user?.isAdmin) {
+		if (!user?.isAdmin && user?.role !== "admin") {
 			toast.error("Only admins can resolve complaints");
 			return;
 		}

@@ -6,8 +6,12 @@ import { authenticateToken, requireAdmin } from "../middleware/auth.js";
 const router = express.Router();
 
 // Create a new election (Admin only)
-router.post("/", authenticateToken, requireAdmin, async (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const {
 			title,
 			description,
@@ -64,8 +68,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // Add candidate to election (Admin only)
-router.post("/:id/candidates", authenticateToken, requireAdmin, async (req, res) => {
+router.post("/:id/candidates", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const { name, position, department, year, studentId, profileImage, platform, bio } = req.body;
 		const election = await Election.findById(req.params.id);
 		
@@ -140,8 +148,12 @@ router.post("/:electionId/announce", async (req, res) => {
 		const election = await Election.findById(electionId);
 =======
 // Update election status (Admin only)
-router.patch("/:id/status", authenticateToken, requireAdmin, async (req, res) => {
+router.patch("/:id/status", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const { status } = req.body;
 		const election = await Election.findById(req.params.id);
 		

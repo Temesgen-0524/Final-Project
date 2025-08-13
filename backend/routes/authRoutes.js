@@ -3,6 +3,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -89,6 +90,27 @@ router.post("/login", async (req, res) => {
 				year: user.year,
 				studentId: user.studentId,
 				role: user.role,
+			},
+		});
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
+});
+
+// Get current user profile
+router.get("/profile", authenticateToken, async (req, res) => {
+	try {
+		const user = await User.findById(req.user._id).select("-password");
+		res.json({
+			user: {
+				id: user._id,
+				name: user.name,
+				email: user.email,
+				department: user.department,
+				year: user.year,
+				studentId: user.studentId,
+				role: user.role,
+				isAdmin: user.role === "admin",
 			},
 		});
 	} catch (error) {

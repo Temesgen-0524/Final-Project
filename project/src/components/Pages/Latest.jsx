@@ -68,7 +68,7 @@ export function Latest() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		if (!user?.isAdmin) {
+		if (!user?.isAdmin && user?.role !== "admin") {
 			toast.error("Only admins can create posts");
 			return;
 		}
@@ -76,7 +76,7 @@ export function Latest() {
 		try {
 			const postData = {
 				...newPost,
-				important: newPost.type === "announcement" && newPost.important,
+				important: newPost.type === "announcement" ? newPost.important : false,
 				location: newPost.type === "event" ? newPost.location : "",
 				time: newPost.type === "event" ? newPost.time : "",
 			};
@@ -85,6 +85,7 @@ export function Latest() {
 			await fetchPosts(); // Refresh the posts list
 			toast.success("Post created successfully!");
 		} catch (error) {
+			console.error('Failed to create post:', error);
 			toast.error("Failed to create post");
 		}
 
@@ -102,7 +103,7 @@ export function Latest() {
 	};
 
 	const handleDeletePost = (postId) => {
-		if (!user?.isAdmin) {
+		if (!user?.isAdmin && user?.role !== "admin") {
 			toast.error("Only admins can delete posts");
 			return;
 		}

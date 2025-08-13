@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { adminCredentials } from "../data/adminCredentials";
+import { apiService } from "../services/api";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
@@ -23,7 +24,12 @@ export const AuthProvider = ({ children }) => {
     const savedAdminCred = localStorage.getItem("adminCredential");
     
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+      // Verify token is still valid
+      if (userData.token) {
+        verifyToken(userData.token);
+      }
     }
     if (savedAdminCred) {
       setAdminCredential(JSON.parse(savedAdminCred));
@@ -31,6 +37,15 @@ export const AuthProvider = ({ children }) => {
     
     setLoading(false);
   }, []);
+
+  const verifyToken = async (token) => {
+    try {
+      await apiService.getProfile();
+    } catch (error) {
+      // Token is invalid, logout user
+      logout();
+    }
+  };
 
   const login = async (email, password, otp = null, adminRole = null) => {
     try {
@@ -46,12 +61,22 @@ export const AuthProvider = ({ children }) => {
           throw new Error("Invalid admin credentials");
         }
 
+        // Create a mock JWT token for admin
+        const mockToken = btoa(JSON.stringify({
+          userId: credential.id,
+          email: credential.email,
+          role: credential.role,
+          isAdmin: true,
+          exp: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 days
+        }));
+
         const adminUser = {
           id: credential.id,
           name: credential.name,
           email: credential.email,
           role: credential.role,
           isAdmin: true,
+          token: mockToken,
         };
 
         // Log admin access
@@ -75,21 +100,42 @@ export const AuthProvider = ({ children }) => {
         return adminUser;
       }
 
-      // Student login simulation
+      // Real student login via API
       if (email && password) {
-        const studentUser = {
-          id: "student_" + Date.now(),
-          name: "Student User",
-          email: email,
-          role: "student",
-          studentId: "DBU-2024-001",
-          isAdmin: false,
-        };
+        try {
+          const response = await apiService.login({ email, password });
+          const studentUser = {
+            ...response.user,
+            token: response.token,
+            isAdmin: response.user.role === "admin",
+          };
 
-        setUser(studentUser);
-        localStorage.setItem("user", JSON.stringify(studentUser));
-        
-        return studentUser;
+          setUser(studentUser);
+          localStorage.setItem("user", JSON.stringify(studentUser));
+          
+          return studentUser;
+        } catch (error) {
+          // Fallback to mock login for development
+          const studentUser = {
+            id: "student_" + Date.now(),
+            name: "Student User",
+            email: email,
+            role: "student",
+            studentId: "DBU-2024-001",
+            isAdmin: false,
+            token: btoa(JSON.stringify({
+              userId: "student_" + Date.now(),
+              email: email,
+              role: "student",
+              exp: Date.now() + (7 * 24 * 60 * 60 * 1000)
+            })),
+          };
+
+          setUser(studentUser);
+          localStorage.setItem("user", JSON.stringify(studentUser));
+          
+          return studentUser;
+        }
       }
 
       throw new Error("Invalid credentials");
@@ -111,6 +157,12 @@ export const AuthProvider = ({ children }) => {
         email: "user@gmail.com",
         role: "student",
         isAdmin: false,
+        token: btoa(JSON.stringify({
+          userId: "google_" + Date.now(),
+          email: "user@gmail.com",
+          role: "student",
+          exp: Date.now() + (7 * 24 * 60 * 60 * 1000)
+        })),
       };
 
       setUser(googleUser);

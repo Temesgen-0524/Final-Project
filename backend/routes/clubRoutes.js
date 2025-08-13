@@ -7,8 +7,12 @@ import { authenticateToken, requireAdmin } from "../middleware/auth.js";
 const router = express.Router();
 
 // Create a new club (Admin only)
-router.post("/", authenticateToken, requireAdmin, async (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const { name, category, description, image, founded } = req.body;
 		const club = new Club({
 			name,
@@ -94,8 +98,12 @@ router.post("/:id/join", authenticateToken, async (req, res) => {
 });
 
 // Approve/Reject join request (Admin only)
-router.patch("/:clubId/join-requests/:requestId", authenticateToken, requireAdmin, async (req, res) => {
+router.patch("/:clubId/join-requests/:requestId", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const { status } = req.body; // "approved" or "rejected"
 		const club = await Club.findById(req.params.clubId);
 		
@@ -122,8 +130,12 @@ router.patch("/:clubId/join-requests/:requestId", authenticateToken, requireAdmi
 });
 
 // Add member directly (Admin only)
-router.post("/:id/members", authenticateToken, requireAdmin, async (req, res) => {
+router.post("/:id/members", authenticateToken, async (req, res) => {
 	try {
+		if (req.user.role !== "admin" && !req.user.isAdmin) {
+			return res.status(403).json({ message: "Admin access required" });
+		}
+
 		const { userId } = req.body;
 		const club = await Club.findById(req.params.id);
 		

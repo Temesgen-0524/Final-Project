@@ -22,7 +22,7 @@ const port = process.env.PORT || 5000;
 
 // Use CORS middleware
 app.use(cors({
-	origin: ["http://localhost:5173", "http://localhost:3000"],
+	origin: process.env.CORS_ORIGINS?.split(',') || ["http://localhost:5173", "http://localhost:3000"],
 	credentials: true
 }));
 app.use(express.json());
@@ -56,11 +56,27 @@ app.use("/api/elections", electionRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/stats", statsRoutes);
 
+// Add error handling middleware
+app.use((error, req, res, next) => {
+	console.error('Server Error:', error);
+	res.status(500).json({ 
+		message: 'Internal server error',
+		error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+	});
+});
 // Health check endpoint
 app.get("/", (req, res) => {
 	res.json({ message: "DBU Student Union API is running!" });
 });
 
+// API health check
+app.get("/api/health", (req, res) => {
+	res.json({ 
+		status: "OK", 
+		timestamp: new Date().toISOString(),
+		database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected"
+	});
+});
 // Start the server
 app.listen(port, () => {
 	console.log(`Server is running on http://localhost:${port}`);
