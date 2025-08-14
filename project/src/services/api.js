@@ -82,6 +82,19 @@ class ApiService {
     });
   }
 
+  async addComplaintResponse(complaintId, responseData) {
+    return this.request(`/complaints/${complaintId}/responses`, {
+      method: 'POST',
+      body: responseData,
+    });
+  }
+
+  async updateComplaintStatus(complaintId, status) {
+    return this.request(`/complaints/${complaintId}/status`, {
+      method: 'PATCH',
+      body: { status },
+    });
+  }
   // Club endpoints
   async getClubs() {
     return this.request('/clubs');
@@ -106,6 +119,11 @@ class ApiService {
     });
   }
 
+  async deletePost(postId) {
+    return this.request(`/posts/${postId}`, {
+      method: 'DELETE',
+    });
+  }
   // Election endpoints
   async getElections() {
     return this.request('/elections');

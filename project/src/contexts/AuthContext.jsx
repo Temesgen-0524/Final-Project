@@ -110,18 +110,22 @@ export const AuthProvider = ({ children }) => {
             isAdmin: response.user.role === "admin",
           };
 
-          setUser(studentUser);
+          // Set the token in the API service
           localStorage.setItem("user", JSON.stringify(studentUser));
+          setUser(studentUser);
           
           return studentUser;
         } catch (error) {
           // Fallback to mock login for development
+          console.warn('API login failed, using mock login:', error.message);
           const studentUser = {
             id: "student_" + Date.now(),
             name: "Student User",
             email: email,
-            role: "student",
+            department: "Computer Science",
+            year: "4th Year",
             studentId: "DBU-2024-001",
+            role: "student",
             isAdmin: false,
             token: btoa(JSON.stringify({
               userId: "student_" + Date.now(),
@@ -131,8 +135,8 @@ export const AuthProvider = ({ children }) => {
             })),
           };
 
-          setUser(studentUser);
           localStorage.setItem("user", JSON.stringify(studentUser));
+          setUser(studentUser);
           
           return studentUser;
         }

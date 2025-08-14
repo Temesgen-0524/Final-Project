@@ -89,17 +89,15 @@ export function Complaints() {
 			return;
 		}
 
-		const caseId = generateCaseId();
 		try {
 			const complaintData = {
 				...newComplaintForm,
-				submittedBy: user?.id,
 				branch: newComplaintForm.category,
 			};
 
 			await apiService.createComplaint(complaintData);
 			await fetchComplaints(); // Refresh the complaints list
-			toast.success(`Complaint submitted. Case ID: ${caseId}`);
+			toast.success("Complaint submitted successfully!");
 		} catch (error) {
 			console.error('Failed to submit complaint:', error);
 			toast.error("Failed to submit complaint");
@@ -119,28 +117,21 @@ export function Complaints() {
 	const handleSendResponse = (complaintId) => {
 		if (!responseMessage.trim()) return;
 
-		const updatedComplaints = complaints.map((complaint) => {
-			if (complaint.id === complaintId) {
-				return {
-					...complaint,
-					status: "under_review",
-					responses: [
-						...complaint.responses,
-						{
-							id: `resp_${Date.now()}`,
-							author: user?.name || "Admin",
-							message: responseMessage,
-							timestamp: new Date(),
-						},
-					],
-				};
+		const sendResponse = async () => {
+			try {
+				await apiService.addComplaintResponse(complaintId, {
+					message: responseMessage
+				});
+				await fetchComplaints();
+				toast.success("Response sent");
+				setResponseMessage("");
+			} catch (error) {
+				console.error('Failed to send response:', error);
+				toast.error("Failed to send response");
 			}
-			return complaint;
-		});
+		};
 
-		setComplaints(updatedComplaints);
-		toast.success("Response sent");
-		setResponseMessage("");
+		sendResponse();
 	};
 
 	const handleDocumentUpload = (e) => {
@@ -170,14 +161,18 @@ export function Complaints() {
 			return;
 		}
 
-		const updatedComplaints = complaints.map((complaint) =>
-			complaint.id === complaintId
-				? { ...complaint, status: "resolved" }
-				: complaint
-		);
+		const updateStatus = async () => {
+			try {
+				await apiService.updateComplaintStatus(complaintId, "resolved");
+				await fetchComplaints();
+				toast.success("Complaint resolved successfully");
+			} catch (error) {
+				console.error('Failed to resolve complaint:', error);
+				toast.error("Failed to resolve complaint");
+			}
+		};
 
-		setComplaints(updatedComplaints);
-		toast.success("Complaint resolved successfully");
+		updateStatus();
 	};
 
 	const getStatusIcon = (status) => {

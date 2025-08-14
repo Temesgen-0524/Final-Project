@@ -3,14 +3,10 @@ import mongoose from "mongoose";
 
 const CandidateSchema = new mongoose.Schema({
 	name: { type: String, required: true },
-<<<<<<< HEAD
-	department: { type: String, required: true }, // Added department field
-=======
 	position: { type: String, required: true },
 	department: { type: String, required: true },
 	year: { type: String, required: true },
 	studentId: { type: String, required: true },
->>>>>>> 73367c1cb39a00f618d3c29bea1c786d531231a1
 	votes: { type: Number, default: 0 },
 	profileImage: { type: String, required: true },
 	platform: { type: [String], required: true },
@@ -23,10 +19,7 @@ const ElectionSchema = new mongoose.Schema({
 	status: {
 		type: String,
 		enum: ["Ongoing", "Completed", "Pending"],
-<<<<<<< HEAD
-=======
 		default: "Pending",
->>>>>>> 73367c1cb39a00f618d3c29bea1c786d531231a1
 	},
 	startDate: { type: Date, required: true },
 	endDate: { type: Date, required: true },

@@ -68,13 +68,28 @@ export function Elections() {
 		}
 		setNewElection((prev) => ({
 			...prev,
-			candidates: [...prev.candidates, { ...newCandidate, votes: 0 }],
+			candidates: [...prev.candidates, { 
+				...newCandidate, 
+				votes: 0,
+				position: "President",
+				year: "4th Year",
+				studentId: `DBU-${Date.now()}`,
+				platform: ["Student Welfare", "Academic Excellence"],
+				profileImage: newCandidate.profileImage || "https://images.pexels.com/photos/3763188/pexels-photo-3763188.jpeg?auto=compress&cs=tinysrgb&w=400"
+			}],
 		}));
 		setNewCandidate({ name: "", department: "", profileImage: null });
 	};
 
 	const handleProfileImageChange = (e) => {
-		setNewCandidate({ ...newCandidate, profileImage: e.target.files[0] });
+		const file = e.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setNewCandidate({ ...newCandidate, profileImage: reader.result });
+			};
+			reader.readAsDataURL(file);
+		}
 	};
 
 	const handleCreateElection = async (e) => {
@@ -102,6 +117,7 @@ export function Elections() {
 		} catch (error) {
 			console.error('Failed to create election:', error);
 			toast.error("Failed to create election");
+			return;
 		}
 
 		setNewElection({
@@ -305,7 +321,7 @@ export function Elections() {
 													name: e.target.value,
 												})
 											}
-											className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+											className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
 										/>
 										<input
 											type="text"
@@ -317,13 +333,13 @@ export function Elections() {
 													department: e.target.value,
 												})
 											}
-											className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+											className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
 										/>
 										<input
 											type="file"
 											accept="image/*"
 											onChange={handleProfileImageChange}
-											className="border border-gray-300 rounded-lg"
+											className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
 										/>
 										<button
 											type="button"
@@ -335,8 +351,7 @@ export function Elections() {
 									<ul className="mt-2">
 										{newElection.candidates.map((candidate, index) => (
 											<li key={index} className="text-gray-700">
-												{candidate.name} ({candidate.department}) -{" "}
-												{candidate.votes} votes
+												{candidate.name} ({candidate.department})
 											</li>
 										))}
 									</ul>

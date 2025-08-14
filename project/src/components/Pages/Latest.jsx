@@ -76,6 +76,7 @@ export function Latest() {
 		try {
 			const postData = {
 				...newPost,
+				type: newPost.type.charAt(0).toUpperCase() + newPost.type.slice(1),
 				important: newPost.type === "announcement" ? newPost.important : false,
 				location: newPost.type === "event" ? newPost.location : "",
 				time: newPost.type === "event" ? newPost.time : "",
@@ -87,6 +88,7 @@ export function Latest() {
 		} catch (error) {
 			console.error('Failed to create post:', error);
 			toast.error("Failed to create post");
+			return;
 		}
 
 		setNewPost({
@@ -107,7 +109,19 @@ export function Latest() {
 			toast.error("Only admins can delete posts");
 			return;
 		}
-		toast.success("Post deleted successfully!");
+		
+		const deletePost = async () => {
+			try {
+				await apiService.deletePost(postId);
+				await fetchPosts();
+				toast.success("Post deleted successfully!");
+			} catch (error) {
+				console.error('Failed to delete post:', error);
+				toast.error("Failed to delete post");
+			}
+		};
+		
+		deletePost();
 	};
 
 	return (

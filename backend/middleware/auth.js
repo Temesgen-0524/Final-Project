@@ -29,11 +29,22 @@ export const authenticateToken = async (req, res, next) => {
 				// Continue to JWT verification
 			}
 		}
+		
 		const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
 		const user = await User.findById(decoded.userId);
 
 		if (!user) {
-			return res.status(401).json({ message: "Invalid token" });
+			// Handle mock users for development
+			if (decoded.userId && decoded.email) {
+				req.user = {
+					_id: decoded.userId,
+					email: decoded.email,
+					role: decoded.role || "student",
+					isAdmin: decoded.role === "admin",
+				};
+				return next();
+			}
+			return res.status(401).json({ message: "User not found" });
 		}
 
 		req.user = {
@@ -42,6 +53,7 @@ export const authenticateToken = async (req, res, next) => {
 		};
 		next();
 	} catch (error) {
+		console.error('Auth error:', error.message);
 		return res.status(403).json({ message: "Invalid token" });
 	}
 };

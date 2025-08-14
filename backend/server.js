@@ -64,6 +64,12 @@ app.use((error, req, res, next) => {
 		error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
 	});
 });
+
+// 404 handler
+app.use((req, res) => {
+	res.status(404).json({ message: 'Route not found' });
+});
+
 // Health check endpoint
 app.get("/", (req, res) => {
 	res.json({ message: "DBU Student Union API is running!" });
